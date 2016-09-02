@@ -22,6 +22,11 @@ web_base = os.environ.get('OPENAI_GYM_WEB_BASE', 'https://gym.openai.com')
 # this repository.
 
 # groups
+add_group(
+    id='classic_marl',
+    name='Classic MARL',
+    description='Classic MARL problem from MARL literature'
+)
 
 add_group(
     id='classic_control',
@@ -77,6 +82,13 @@ add_group(
     description='Environments to test various AI safety properties.'
 )
 
+
+add_task(
+        id='Serengeti-v0',
+        summary="Super cool environment",
+        group='classic_marl',
+        contributor='dwicke',
+)
 # classic control
 
 add_task(

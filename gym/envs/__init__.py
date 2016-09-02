@@ -1,5 +1,13 @@
 from gym.envs.registration import registry, register, make, spec
 
+# Serengeti
+# ----------------------------------------
+
+register(
+    id='Serengeti-v0',
+    entry_point='gym.envs.classic_marl:SerengetiEnv',
+)
+
 # Algorithmic
 # ----------------------------------------
 
