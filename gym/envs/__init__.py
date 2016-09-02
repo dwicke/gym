@@ -8,6 +8,11 @@ register(
     entry_point='gym.envs.classic_marl:SerengetiEnv',
 )
 
+register(
+    id='Football-v0',
+    entry_point='gym.envs.classic_marl:FootballEnv',
+    kwargs={'numAttackers' : 2, 'size': 3, 'offset' : 0, 'defenderStart' : 0, 'defenderLength' : .75}
+)
 # Algorithmic
 # ----------------------------------------
 

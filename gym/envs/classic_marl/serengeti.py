@@ -9,12 +9,128 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 from gym.envs.classic_marl import field
-from gym.envs.classic_marl import lion
-from gym.envs.classic_marl import gazelle
 
 logger = logging.getLogger(__name__)
 
+class Lion():
+    def __init__(self, maxStep, field):
+        print ("created lion")
+        self.xpos = 0
+        self.ypos = 0
+        self.theta = 0
+        self.maxStep = maxStep
+        self.field = field
+    
 
+    def reset(self, xpos, ypos, theta):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.theta = theta
+    
+
+    def getX(self):
+        return self.xpos
+
+
+    def getY(self):
+        return self.ypos
+    
+
+
+    def step(self, action):
+        ##dir = self.rotate(self.maxStep, 0, math.random()*2*math.pi)
+        direction = self.rotate(self.maxStep, 0, action)
+        oldx = self.xpos
+        oldy = self.ypos
+        self.xpos = self.field.stx(self.xpos + direction[0])
+        self.ypos = self.field.sty(self.ypos + direction[1])
+
+
+    
+
+    def colidedWith(self, l):
+        vx, vy = self.field.tv(self.xpos, l.getX(), self.ypos, l.getY())
+        if math.sqrt(vx*vx + vy*vy) <= 2.0:
+                return 0.0
+        
+        return 0.0
+    
+
+
+    def rotate(self, x, y, theta):
+        sinTheta = math.sin(theta)
+        cosTheta = math.cos(theta)
+        xp = cosTheta * x + -sinTheta * y
+        yp = sinTheta * x + cosTheta * y
+        return [xp, yp]
+
+
+class Gazelle():
+
+    def __init__(self, maxFieldLength, lions, field, stepSize):
+        self.xpos = 0
+        self.ypos = maxFieldLength / 2
+        self.maxFieldLength = maxFieldLength
+        self.lions = lions
+        self.field = field
+        self.stepSize = stepSize
+        self.dead = -1
+        self.deathRange = 2
+
+    def reset(self, xpos, ypos):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.dead = -1
+
+    def step(self, lions):
+        if self.dead == 1:
+            return
+        
+        xp = 0.0
+        yp = 0.0
+        for l in lions:
+            vx, vy = self.field.tv(l.getX(), self.xpos, l.getY(), self.ypos)
+            vLen = math.sqrt(vx*vx + vy*vy)
+            scale = (self.maxFieldLength - vLen) / vLen
+            xp = xp + vx * scale
+            yp = yp + vy * scale
+        
+        xp = -1*xp
+        yp = -1*yp
+
+        len = math.sqrt(xp*xp + yp*yp)
+        if len > 0.01:
+            xp = xp * (self.stepSize / len)
+            yp = yp * (self.stepSize / len)
+        else:
+            print("Gazelle is not moving!")
+        
+        self.xpos = self.field.stx(self.xpos + xp)
+        self.ypos = self.field.sty(self.ypos + yp)
+
+
+    ## returns -1 if not dead
+    ## returns 1 if dead
+    def isDead(self, lions):
+        print("Checking if Gazelle is dead")
+        for l in lions:
+            vx, vy = self.field.tv(self.xpos, l.getX(), self.ypos, l.getY())
+            if math.sqrt(vx*vx + vy*vy) <= self.deathRange:
+                self.dead = 1
+                return True
+            
+        
+        self.dead = -1
+        return False
+    
+
+
+    def getX(self):
+        return self.xpos
+    
+
+    def getY(self):
+        return self.ypos
 
 
 class SerengetiEnv(gym.Env):
@@ -36,9 +152,9 @@ class SerengetiEnv(gym.Env):
         self.terminal = False
 
         for i in range(0, self.numLions ):
-            self.lions.append(lion.Lion(self.lionJump, self.field))
+            self.lions.append(Lion(self.lionJump, self.field))
       
-        self.gazelle = gazelle.Gazelle(self.maxLen, self.lions, self.field, self.gazelleJump)
+        self.gazelle = Gazelle(self.maxLen, self.lions, self.field, self.gazelleJump)
 
     	self.action_space = spaces.Box(0,2*math.pi, self.numLions) ## the direction the lion will face
         self.observation_space = spaces.Box(np.array([0,0]),np.array([self.width, self.height]))
@@ -105,3 +221,4 @@ class SerengetiEnv(gym.Env):
         return coords
     def _render(self, mode='human', close=False):
         return
+

@@ -12,7 +12,8 @@ class ContinuousField():
 			return x - width
 		return x + width;
 
-	def tdx(self, x1, x2, width):
+	def tdx(self, x1, x2, width = None):
+		width = width or self.width
 		if abs(x1- x2) <= (width / 2):
 			return x1 - x2
 		
