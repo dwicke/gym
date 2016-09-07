@@ -15,6 +15,7 @@ class MaxTwoQuadraticEnv(gym.Env):
 	def __init__(self):
 		self.stochastic = False
 		self.action_space = spaces.Box(-4,4, 2)
+		self.observation_space = spaces.Box(1,1,1)
 
 
 	def _seed(self, seed=None):
