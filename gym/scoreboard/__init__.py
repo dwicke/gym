@@ -96,6 +96,14 @@ add_task(
         group='classic_marl',
         contributor='dwicke',
 )
+
+add_task(
+        id='MaxTwoQuadratic-v0',
+        summary="Super cool environment",
+        group='classic_marl',
+        contributor='dwicke',
+
+    )
 # classic control
 
 add_task(
